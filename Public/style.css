@@ -1,0 +1,76 @@
+.card-flip {
+  perspective: 1000px;
+}
+
+.card-inner {
+  transform-style: preserve-3d;
+  transition: transform 0.35s ease;
+}
+
+.card-inner.flipped {
+  transform: rotateY(180deg);
+}
+
+.card-face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  padding: 1rem;
+}
+
+.card-back {
+  transform: rotateY(180deg);
+}
+
+.choice-btn:focus {
+  outline: 3px solid rgba(99, 102, 241, 0.25);
+}
+
+.shake {
+  animation: shake 0.45s;
+}
+
+@keyframes shake {
+  10%,
+  90% {
+    transform: translateX(-1px);
+  }
+
+  20%,
+  80% {
+    transform: translateX(2px);
+  }
+
+  30%,
+  50%,
+  70% {
+    transform: translateX(-4px);
+  }
+
+  40%,
+  60% {
+    transform: translateX(4px);
+  }
+}
+
+.confetti {
+  position: fixed;
+  pointer-events: none;
+  font-size: 20px;
+}
+
+.scrollbar-hide {
+  overflow: auto;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none;
+}

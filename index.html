@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Japanese Learning Hub — Fixed UI</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .card-flip {
+      perspective: 1000px;
+    }
+
+    .card-inner {
+      transform-style: preserve-3d;
+      transition: transform 0.35s ease;
+    }
+
+    .card-inner.flipped {
+      transform: rotateY(180deg);
+    }
+
+    .card-face {
+      position: absolute;
+      inset: 0;
+      backface-visibility: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      padding: 1rem;
+    }
+
+    .card-back {
+      transform: rotateY(180deg);
+    }
+
+    .choice-btn:focus {
+      outline: 3px solid rgba(99, 102, 241, 0.25);
+    }
+
+    .shake {
+      animation: shake 0.45s;
+    }
+
+    @keyframes shake {
+
+      10%,
+      90% {
+        transform: translateX(-1px);
+      }
+
+      20%,
+      80% {
+        transform: translateX(2px);
+      }
+
+      30%,
+      50%,
+      70% {
+        transform: translateX(-4px);
+      }
+
+      40%,
+      60% {
+        transform: translateX(4px);
+      }
+    }
+
+    .confetti {
+      position: fixed;
+      pointer-events: none;
+      font-size: 20px;
+    }
+
+    .scrollbar-hide {
+      overflow: auto;
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    .scrollbar-hide::-webkit-scrollbar {
+      width: 0;
+      height: 0;
+      display: none;
+    }
+  </style>
+  <script src="../Public/style.css"></script>
+  <script src="./Js/main.js"></script>
+</head>
+
+<body class="bg-slate-900 text-slate-100 min-h-screen p-6">
+  <div class="max-w-7xl mx-auto">
+    <header class="flex items-center justify-between mb-6">
+      <div>
+        <h1 class="text-2xl font-bold">🗾Japanese Learning Hub</h1>
+        <p class="text-sm text-slate-400">
+          Fixes: dropdowns, card flip, hiragana chart, quiz & tabs.
+        </p>
+      </div>
+      <nav class="flex gap-2 bg-slate-800 rounded p-1">
+        <button class="tab-btn px-3 py-2 rounded bg-slate-700" data-target="vocabPanel">
+          Vocabulary
+        </button>
+        <button class="tab-btn px-3 py-2 rounded" data-target="hiraganaQuizPanel">
+          Hiragana Quiz
+        </button>
+
+        <button class="tab-btn px-3 py-2 rounded" data-target="vocabFillPanel">
+          Vocab Quiz
+        </button>
+      </nav>
+    </header>
+
+    <main class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <!-- MAIN LEFT/Center -->
+      <section class="lg:col-span-2">
+        <!-- Vocabulary Panel -->
+        <div id="vocabPanel" class="panel">
+          <div class="flex items-center gap-3 mb-4 flex-wrap">
+            <label class="text-sm">Category</label>
+            <select id="categorySelect" class="bg-slate-700 text-slate-100 rounded px-2 py-1 text-sm w-60"></select>
+
+            <label class="text-sm">Direction</label>
+            <select id="direction" class="bg-slate-700 text-slate-100 rounded px-2 py-1 text-sm">
+              <option value="jp_en">Japanese → English</option>
+              <option value="en_jp">English → Japanese</option>
+            </select>
+
+            <button id="shuffleVocab" class="px-3 py-1 bg-yellow-500 rounded">
+              Shuffle
+            </button>
+            <button id="studyAll" class="px-3 py-1 bg-emerald-500 rounded">
+              Study Mode
+            </button>
+
+            <div class="ml-auto text-sm text-slate-300" id="vocabCategoryCount"></div>
+          </div>
+
+          <div class="card-flip bg-slate-700 p-6 rounded-2xl relative mb-4 flex justify-center">
+            <div id="cardInner"
+              class="card-inner rounded-lg h-[60vh] w-full flex flex-col items-center justify-center relative">
+              <!-- Front Face -->
+              <div class="card-face flex flex-col items-center justify-center h-full" id="frontFace">
+                <div id="bigPrimary" class="text-5xl font-extrabold text-center"></div>
+                <div id="bigSub" class="mt-3 text-xl text-slate-300 text-center"></div>
+                <div id="bigKanji" class="mt-2 text-3xl text-slate-200/80 text-center"></div>
+                <img id="vocabImage" class="mt-4 rounded-lg max-h-[30vh]" src="" alt="" />
+              </div>
+
+              <!-- Back Face -->
+              <div class="card-face card-back flex flex-col items-center justify-center" id="backFace">
+                <div id="bigSecondary" class="text-3xl font-semibold text-center"></div>
+                <div id="bigHint" class="mt-2 text-sm text-slate-300 text-center"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex justify-between mb-4">
+            <div class="flex gap-2">
+              <button id="prevV" class="px-3 py-2 bg-slate-600 rounded">
+                Prev
+              </button>
+              <button id="flipV" class="px-3 py-2 bg-emerald-500 text-slate-900 rounded">
+                Flip
+              </button>
+              <button id="nextV" class="px-3 py-2 bg-indigo-500 rounded">
+                Next
+              </button>
+            </div>
+            <div class="flex gap-2">
+              <span id="vocabProgress" class="text-sm text-slate-300 self-center">0 / 0</span>
+            </div>
+          </div>
+
+          <div id="studyList"
+            class="hidden bg-slate-700 p-4 rounded-lg mb-4 max-h-64 overflow-auto text-sm scrollbar-hide">
+          </div>
+        </div>
+
+        <!-- Hiragana Quiz Panel -->
+        <div id="hiraganaQuizPanel" class="panel hidden">
+          <div class="flex items-center gap-3 mb-4">
+            <label class="text-sm">Level</label>
+            <select id="hLevel" class="bg-slate-700 text-slate-100 rounded px-2 py-1 text-sm">
+              <option value="a">A row (あ–お)</option>
+              <option value="ka">Ka row (か–こ)</option>
+              <option value="sa">Sa row (さ–そ)</option>
+              <option value="ta">Ta row (た–と)</option>
+              <option value="na">Na row (な–の)</option>
+              <option value="ha">Ha row (は–ほ)</option>
+              <option value="ma">Ma row (ま–も)</option>
+              <option value="ya">Ya row (や–よ)</option>
+              <option value="ra">Ra row (ら–ろ)</option>
+              <option value="wa">Wa row (わ–ん)</option>
+              <option value="a_ko">A–Ko (あ–お + か–こ)</option>
+              <option value="sa_to">Sa–To (さ–そ + た–と)</option>
+              <option value="na_ho">Na–Ho (な–の + は–ほ)</option>
+              <option value="ma_yo">Ma–Yo (ま–も + や–よ)</option>
+              <option value="ra_n">Ra–N (ら–ろ + わ–ん)</option>
+              <option value="all">All Hiragana</option>
+            </select>
+            <button id="startQuiz" class="px-3 py-1 bg-emerald-500 rounded">
+              Start Quiz
+            </button>
+            <button id="shuffleQuiz" class="px-3 py-1 bg-yellow-500 rounded">
+              Shuffle
+            </button>
+            <div class="ml-auto text-sm">
+              Score: <span id="quizScore">0</span>
+            </div>
+          </div>
+
+          <div class="bg-slate-700 p-6 rounded-2xl text-center">
+            <div id="quizCard" class="text-7xl font-bold mb-4">あ</div>
+            <div id="quizChoices" class="grid grid-cols-2 gap-3 max-w-md mx-auto"></div>
+            <div class="mt-4 text-sm text-slate-300">
+              Progress: <span id="quizProgress">0 / 0</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Vocabulary Fill-in-the-Blank Quiz Panel -->
+        <div id="vocabFillPanel" class="panel hidden">
+          <div class="flex items-center gap-3 mb-4">
+            <label class="text-sm">Category</label>
+            <select id="vfCategory" class="bg-slate-700 text-slate-100 rounded px-2 py-1 text-sm w-60"></select>
+            <button id="vfStart" class="px-3 py-1 bg-emerald-500 rounded">
+              Start Quiz
+            </button>
+            <div class="ml-auto text-sm">
+              Score: <span id="vfScore">0</span>
+            </div>
+          </div>
+
+          <div class="bg-slate-700 p-6 rounded-2xl text-center">
+            <div id="vfEnglish" class="text-2xl font-bold mb-2"></div>
+            <div id="vfRomaji" class="text-lg text-slate-300 mb-4"></div>
+
+            <div id="vfSlots" class="flex justify-center gap-2 mb-6"></div>
+            <div id="vfLetters" class="flex flex-wrap justify-center gap-2">
+              <h1 class="text-3xl font-bold">Test your vocabulary</h1>
+            </div>
+            <h1 class="mt-6 text-sm text-slate-400">
+              Drag and drop the hiragana characters to fill in the word.
+            </h1>
+
+            <div class="mt-4 text-sm text-slate-300">
+              Progress: <span id="vfProgress">0 / 0</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- RIGHT BENTO BOX -->
+      <aside class="lg:col-span-1 sticky top-6">
+        <div class="bg-slate-800 p-4 rounded-2xl">
+          <div class="flex justify-between items-center mb-2">
+            <h2 class="text-lg font-semibold">Hiragana Chart</h2>
+            <button id="toggleChartBtn" class="px-2 py-1 text-xs bg-indigo-600 rounded hover:bg-indigo-500">
+              Hide
+            </button>
+          </div>
+          <div id="hiraganaChartContainer"
+            class="transition-all duration-300 ease-in-out overflow-auto max-h-[90vh] scrollbar-hide">
+            <!-- Basic Hiragana -->
+            <h3 class="font-semibold mt-2 mb-1">Basic</h3>
+            <div id="hiraganaChart" class="grid grid-cols-5 gap-2 text-center text-sm"></div>
+          </div>
+          <p class="mt-3 text-xs text-slate-400">
+            Click a cell to copy romaji and hear a tone.
+          </p>
+        </div>
+      </aside>
+    </main>
+
+    <footer class="mt-6 text-xs text-slate-500 text-center">
+      If something still fails, copy any console errors and paste them here.
+    </footer>
+  </div>
+
+</body>
+
+</html>
