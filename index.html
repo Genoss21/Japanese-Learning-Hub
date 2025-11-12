@@ -180,9 +180,11 @@
 
         <!-- Hiragana Quiz Panel -->
         <div id="hiraganaQuizPanel" class="panel hidden">
-          <div class="flex items-center gap-3 mb-4">
-            <label class="text-sm">Level</label>
-            <select id="hLevel" class="bg-slate-700 text-slate-100 rounded px-2 py-1 text-sm">
+          <div class="flex flex-wrap items-center gap-3 mb-4 bg-slate-800/40 p-3 rounded-lg">
+            <!-- Label & Level selector -->
+            <label for="hLevel" class="text-sm text-slate-100 font-medium">Level:</label>
+            <select id="hLevel"
+              class="bg-slate-700 text-slate-100 rounded px-2 py-1 text-sm focus:ring-2 focus:ring-emerald-400 outline-none">
               <option value="a">A row (あ–お)</option>
               <option value="ka">Ka row (か–こ)</option>
               <option value="sa">Sa row (さ–そ)</option>
@@ -200,23 +202,34 @@
               <option value="ra_n">Ra–N (ら–ろ + わ–ん)</option>
               <option value="all">All Hiragana</option>
             </select>
-            <button id="startQuiz" class="px-3 py-1 bg-emerald-500 rounded">
+
+            <!-- Buttons -->
+            <button id="startQuiz"
+              class="px-3 py-1 bg-emerald-500 hover:bg-emerald-600 text-white rounded text-sm transition-colors">
               Start Quiz
             </button>
-            <button id="shuffleQuiz" class="px-3 py-1 bg-yellow-500 rounded">
+            <button id="shuffleQuiz"
+              class="px-3 py-1 bg-yellow-500 hover:bg-yellow-600 text-white rounded text-sm transition-colors">
               Shuffle
             </button>
-            <div class="ml-auto text-sm">
-              Score: <span id="quizScore">0</span>
+
+            <!-- Score & Progress -->
+            <div class="ml-auto flex items-center gap-4 text-sm text-slate-200">
+              <span>Score: <span id="quizScore" class="font-semibold text-emerald-400">0</span></span>
+              <span>Progress: <span id="quizProgress" class="font-semibold text-amber-400">0 / 0</span></span>
             </div>
           </div>
 
+          <!-- 🎉 Finish Message -->
+          <div id="quizFinishMsg"
+            class="hidden mt-4 text-center text-lg font-semibold text-emerald-400 bg-slate-800/50 p-3 rounded-lg">
+            🎉 Congratulations! You’ve completed this level! 🎉
+          </div>
+
           <div class="bg-slate-700 p-6 rounded-2xl text-center">
-            <div id="quizCard" class="text-7xl font-bold mb-4">あ</div>
+            <div id="quizCard" class="text-7xl font-bold mb-6">あ</div>
             <div id="quizChoices" class="grid grid-cols-2 gap-3 max-w-md mx-auto"></div>
-            <div class="mt-4 text-sm text-slate-300">
-              Progress: <span id="quizProgress">0 / 0</span>
-            </div>
+            <div id="quizText" class="text-xl text-slate-200 my-4">Test your memory</div>
           </div>
         </div>
 

@@ -934,7 +934,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Map individual rows
+  // --- Map individual rows ---
   function getRow(key) {
     switch (key) {
       case "a":
@@ -962,7 +962,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Combine rows based on select value
+  // --- Combine groups ---
   function levelGroup(key) {
     switch (key) {
       case "a_ko":
@@ -978,33 +978,26 @@ document.addEventListener("DOMContentLoaded", () => {
       case "all":
         return hiraganaAll.slice();
       default:
-        return hiraganaAll.slice();
+        return getRow(key);
     }
   }
 
+  // --- Quiz core ---
   let quizPool = [];
   let qIndex = 0;
   let qScore = 0;
 
-  // Build quiz pool based on level
   function buildQuiz(key) {
     const base = levelGroup(key);
     let pool = [];
 
-    if (key === "all") {
-      // All hiragana → 100 random items
-      while (pool.length < 100) {
-        const p = base[Math.floor(Math.random() * base.length)];
-        pool.push({ ch: p[0], rom: p[1] });
-      }
-    } else if (key.includes("_")) {
-      // Combined rows → 100 items total
+    // Adjust total items
+    if (key === "all" || key.includes("_")) {
       while (pool.length < 100) {
         const p = base[Math.floor(Math.random() * base.length)];
         pool.push({ ch: p[0], rom: p[1] });
       }
     } else {
-      // Single row → 50 items
       while (pool.length < 50) {
         const p = base[Math.floor(Math.random() * base.length)];
         pool.push({ ch: p[0], rom: p[1] });
@@ -1015,14 +1008,12 @@ document.addEventListener("DOMContentLoaded", () => {
     quizPool = pool;
     qIndex = 0;
     qScore = 0;
-
     document.getElementById("quizScore").textContent = qScore;
-    document.getElementById(
-      "quizProgress"
-    ).textContent = `Progress: 0 / ${quizPool.length}`;
+
     renderQuiz();
   }
 
+  // --- Render question ---
   function renderQuiz() {
     if (qIndex >= quizPool.length) {
       alert(`🎉 Quiz finished! Your score: ${qScore}/${quizPool.length}`);
@@ -1033,13 +1024,12 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("bigPrimary").textContent = current.ch;
     document.getElementById("bigSecondary").textContent = current.rom;
     document.getElementById("bigHint").textContent = "";
-
-    // Update progress
     document.getElementById("quizProgress").textContent = `Progress: ${
       qIndex + 1
     } / ${quizPool.length}`;
   }
 
+  // --- Next question ---
   function nextQuestion(correct = true) {
     if (correct) qScore++;
     qIndex++;
@@ -1047,57 +1037,104 @@ document.addEventListener("DOMContentLoaded", () => {
     renderQuiz();
   }
 
-  // Level select event
-  document.getElementById("hLevel").addEventListener("change", (e) => {
-    buildQuiz(e.target.value);
+  // --- Event: Start Quiz ---
+  document.getElementById("startQuiz").addEventListener("click", () => {
+    const level = document.getElementById("hLevel").value;
+    buildQuiz(level);
   });
 
-  // Initialize
-  buildQuiz(document.getElementById("hLevel").value);
+  // Shuffle existing quiz without changing level
+  document.getElementById("shuffleQuiz").addEventListener("click", () => {
+    if (quizPool.length === 0) return alert("Please start a quiz first!");
+    shuffleArr(quizPool);
+    qIndex = 0;
+    qScore = 0;
+    document.getElementById("quizScore").textContent = qScore;
+    renderQuiz();
+  });
 
   function renderQuiz() {
+    // If no items in quizPool, stop
     if (!quizPool.length) return;
+
+    // If finished all questions — show congratulations message
+    if (qIndex >= quizPool.length) {
+      quizCard.textContent = "";
+      quizChoices.innerHTML = "";
+      quizProgress.textContent = `${quizPool.length} / ${quizPool.length}`;
+
+      // 🎉 Show finish message
+      const msg = document.getElementById("quizFinishMsg");
+      msg.classList.remove("hidden", "opacity-0");
+      msg.classList.add("animate-bounce", "mb-4");
+
+      const text = document.getElementById("quizText");
+
+      text.textContent = "Try a different set!";
+      text.classList.remove("my-4");
+
+      // Optional: stop bounce after 2s
+      // setTimeout(() => msg.classList.remove("animate-bounce"), 2000);
+
+      // Optional: play success tone
+      playTone(5000);
+
+      // Optional: auto-scroll into view
+      msg.scrollIntoView({ behavior: "smooth", block: "center" });
+      return;
+    }
+
+    // Hide finish message if restarting
+    const msg = document.getElementById("quizFinishMsg");
+    msg.classList.add("hidden");
+
     const it = quizPool[qIndex];
-    quizCard.textContent = it.ch; // choices: correct + 3 random
+    quizCard.textContent = it.ch;
+
+    // Generate 3 wrong + 1 correct
     const options = [it.rom];
     const pool = hiraganaAll.map((x) => x[1]).filter((r) => r !== it.rom);
     shuffleArr(pool);
     options.push(pool[0], pool[1], pool[2]);
     shuffleArr(options);
+
     quizChoices.innerHTML = "";
+
     options.forEach((opt) => {
       const b = document.createElement("button");
       b.className =
-        "choice-btn px-4 py-3 bg-slate-600 rounded hover:bg-slate-500";
+        "choice-btn px-4 py-3 bg-slate-600 rounded hover:bg-slate-500 transition-colors";
       b.textContent = opt;
+
       b.addEventListener("click", () => {
-        // disable further clicks briefly
         Array.from(quizChoices.children).forEach((ch) => (ch.disabled = true));
+
         if (opt === it.rom) {
-          b.classList.remove("bg-slate-600");
-          b.classList.add("bg-emerald-500");
+          b.classList.replace("bg-slate-600", "bg-emerald-500");
           qScore++;
           quizScore.textContent = qScore;
-          playTone(800);
+          playTone(2000);
         } else {
-          b.classList.remove("bg-slate-600");
-          b.classList.add("bg-red-600");
-          playTone(220);
+          b.classList.replace("bg-slate-600", "bg-red-600");
+          playTone(520);
         }
-        // reveal correct
+
+        // Highlight correct answer
         Array.from(quizChoices.children).forEach((ch) => {
           if (ch.textContent === it.rom) {
-            ch.classList.remove("bg-slate-600");
-            ch.classList.add("bg-emerald-500");
+            ch.classList.replace("bg-slate-600", "bg-emerald-500");
           }
         });
+
         setTimeout(() => {
-          qIndex = (qIndex + 1) % quizPool.length;
+          qIndex++;
           renderQuiz();
         }, 700);
       });
+
       quizChoices.appendChild(b);
     });
+
     quizProgress.textContent = `${qIndex + 1} / ${quizPool.length}`;
   }
 
