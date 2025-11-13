@@ -2,1142 +2,296 @@
 <html lang="ja">
 
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Japanese Learning Hub — Fixed UI</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        .card-flip {
-            perspective: 1000px;
-        }
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Japanese Learning Hub</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .card-flip {
+      perspective: 1000px;
+    }
 
-        .card-inner {
-            transform-style: preserve-3d;
-            transition: transform 0.35s ease;
-        }
+    .card-inner {
+      transform-style: preserve-3d;
+      transition: transform 0.35s ease;
+    }
 
-        .card-inner.flipped {
-            transform: rotateY(180deg);
-        }
+    .card-inner.flipped {
+      transform: rotateY(180deg);
+    }
 
-        .card-face {
-            position: absolute;
-            inset: 0;
-            backface-visibility: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-            padding: 1rem;
-        }
+    .card-face {
+      position: absolute;
+      inset: 0;
+      backface-visibility: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      padding: 1rem;
+    }
 
-        .card-back {
-            transform: rotateY(180deg);
-        }
+    .card-back {
+      transform: rotateY(180deg);
+    }
 
-        .choice-btn:focus {
-            outline: 3px solid rgba(99, 102, 241, 0.25);
-        }
+    .choice-btn:focus {
+      outline: 3px solid rgba(99, 102, 241, 0.25);
+    }
 
-        .shake {
-            animation: shake 0.45s;
-        }
+    .shake {
+      animation: shake 0.45s;
+    }
 
-        @keyframes shake {
+    @keyframes shake {
 
-            10%,
-            90% {
-                transform: translateX(-1px);
-            }
+      10%,
+      90% {
+        transform: translateX(-1px);
+      }
 
-            20%,
-            80% {
-                transform: translateX(2px);
-            }
+      20%,
+      80% {
+        transform: translateX(2px);
+      }
 
-            30%,
-            50%,
-            70% {
-                transform: translateX(-4px);
-            }
+      30%,
+      50%,
+      70% {
+        transform: translateX(-4px);
+      }
 
-            40%,
-            60% {
-                transform: translateX(4px);
-            }
-        }
+      40%,
+      60% {
+        transform: translateX(4px);
+      }
+    }
 
-        .confetti {
-            position: fixed;
-            pointer-events: none;
-            font-size: 20px;
-        }
+    .confetti {
+      position: fixed;
+      pointer-events: none;
+      font-size: 20px;
+    }
 
-        .scrollbar-hide {
-            overflow: auto;
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
+    .scrollbar-hide {
+      overflow: auto;
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
 
-        .scrollbar-hide::-webkit-scrollbar {
-            width: 0;
-            height: 0;
-            display: none;
-        }
-    </style>
+    .scrollbar-hide::-webkit-scrollbar {
+      width: 0;
+      height: 0;
+      display: none;
+    }
+  </style>
+  <script src="../Public/style.css"></script>
+  <script src="./Js/main.js"></script>
 </head>
 
 <body class="bg-slate-900 text-slate-100 min-h-screen p-6">
-    <div class="max-w-7xl mx-auto">
-        <header class="flex items-center justify-between mb-6">
-            <div>
-                <h1 class="text-2xl font-bold">Japanese Learning Hub — Fixed UI</h1>
-                <p class="text-sm text-slate-400">
-                    Fixes: dropdowns, card flip, hiragana chart, quiz & tabs.
-                </p>
+  <div class="max-w-7xl mx-auto">
+    <header class="flex flex-col sm:flex-row items-center justify-between mb-6">
+      <div class="md:mb-0 mb-6">
+        <h1 class="text-2xl font-bold">🗾Japanese Learning Hub</h1>
+        <p class="text-sm text-slate-400">
+          Fixes: dropdowns, card flip, hiragana chart, quiz & tabs.
+        </p>
+      </div>
+      <nav class="flex gap-2 bg-slate-800 rounded p-1">
+        <button class="tab-btn px-3 py-2 rounded bg-slate-700" data-target="vocabPanel">
+          Vocabulary
+        </button>
+        <button class="tab-btn px-3 py-2 rounded" data-target="hiraganaQuizPanel">
+          Hiragana Quiz
+        </button>
+
+        <button class="tab-btn px-3 py-2 rounded" data-target="vocabFillPanel">
+          Vocab Quiz
+        </button>
+      </nav>
+    </header>
+
+    <main class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <!-- MAIN LEFT/Center -->
+      <section class="lg:col-span-2">
+        <!-- Vocabulary Panel -->
+        <div id="vocabPanel" class="panel">
+          <div class="flex items-center gap-3 mb-4 flex-wrap">
+            <label class="text-sm">Category</label>
+            <select id="categorySelect" class="bg-slate-700 text-slate-100 rounded px-2 py-1 text-sm w-60"></select>
+
+            <label class="text-sm">Direction</label>
+            <select id="direction" class="bg-slate-700 text-slate-100 rounded px-2 py-1 text-sm">
+              <option value="jp_en">Japanese → English</option>
+              <option value="en_jp">English → Japanese</option>
+            </select>
+
+            <button id="shuffleVocab" class="px-3 py-1 bg-yellow-500 rounded">
+              Shuffle
+            </button>
+            <button id="studyAll" class="px-3 py-1 bg-emerald-500 rounded">
+              Study Mode
+            </button>
+
+            <div class="ml-auto text-sm text-slate-300" id="vocabCategoryCount"></div>
+          </div>
+
+          <div class="card-flip bg-slate-700 p-6 rounded-2xl relative mb-4 flex justify-center">
+            <div id="cardInner"
+              class="card-inner rounded-lg  md:h-[60vh] h-[50vh] w-full flex flex-col items-center justify-center relative">
+              <!-- Front Face -->
+              <div class="card-face flex flex-col items-center justify-center h-full" id="frontFace">
+                <div id="bigPrimary" class="text-5xl font-extrabold text-center"></div>
+                <div id="bigSub" class="mt-3 text-xl text-slate-300 text-center"></div>
+                <div id="bigKanji" class="mt-2 text-3xl text-slate-200/80 text-center"></div>
+                <img id="vocabImage" class="mt-4 rounded-lg max-h-[30vh]" src="" alt="" />
+              </div>
+
+              <!-- Back Face -->
+              <div class="card-face card-back flex flex-col items-center justify-center" id="backFace">
+                <div id="bigSecondary" class="text-3xl font-semibold text-center"></div>
+                <div id="bigHint" class="mt-2 text-sm text-slate-300 text-center"></div>
+              </div>
             </div>
-            <nav class="flex gap-2 bg-slate-800 rounded p-1">
-                <button class="tab-btn px-3 py-2 rounded bg-slate-700" data-target="vocabPanel">
-                    Vocabulary
-                </button>
-                <button class="tab-btn px-3 py-2 rounded" data-target="hiraganaQuizPanel">
-                    Hiragana Quiz
-                </button>
+          </div>
+
+          <div class="flex justify-between mb-4">
+            <div class="flex gap-2">
+              <button id="prevV" class="px-3 py-2 bg-slate-600 rounded">
+                Prev
+              </button>
+              <button id="flipV" class="px-3 py-2 bg-emerald-500 text-slate-900 rounded">
+                Flip
+              </button>
+              <button id="nextV" class="px-3 py-2 bg-indigo-500 rounded">
+                Next
+              </button>
+            </div>
+            <div class="flex gap-2">
+              <span id="vocabProgress" class="text-sm text-slate-300 self-center">0 / 0</span>
+            </div>
+          </div>
+
+          <div id="studyList"
+            class="hidden bg-slate-700 p-4 rounded-lg mb-4 max-h-64 overflow-auto text-sm scrollbar-hide">
+          </div>
+        </div>
+
+        <!-- Hiragana Quiz Panel -->
+        <div id="hiraganaQuizPanel" class="panel hidden">
+          <div class="flex flex-wrap items-center gap-3 mb-4 bg-slate-800/40 p-3 rounded-lg">
+            <!-- Label & Level selector -->
+            <label for="hLevel" class="text-sm text-slate-100 font-medium">Level:</label>
+            <select id="hLevel"
+              class="bg-slate-700 text-slate-100 rounded px-2 py-1 text-sm focus:ring-2 focus:ring-emerald-400 outline-none">
+              <option value="a">A row (あ–お)</option>
+              <option value="ka">Ka row (か–こ)</option>
+              <option value="sa">Sa row (さ–そ)</option>
+              <option value="ta">Ta row (た–と)</option>
+              <option value="na">Na row (な–の)</option>
+              <option value="ha">Ha row (は–ほ)</option>
+              <option value="ma">Ma row (ま–も)</option>
+              <option value="ya">Ya row (や–よ)</option>
+              <option value="ra">Ra row (ら–ろ)</option>
+              <option value="wa">Wa row (わ–ん)</option>
+              <option value="a_ko">A–Ko (あ–お + か–こ)</option>
+              <option value="sa_to">Sa–To (さ–そ + た–と)</option>
+              <option value="na_ho">Na–Ho (な–の + は–ほ)</option>
+              <option value="ma_yo">Ma–Yo (ま–も + や–よ)</option>
+              <option value="ra_n">Ra–N (ら–ろ + わ–ん)</option>
+              <option value="all">All Hiragana</option>
+            </select>
+
+            <!-- Buttons -->
+            <button id="startQuiz"
+              class="px-3 py-1 bg-emerald-500 hover:bg-emerald-600 text-white rounded text-sm transition-colors">
+              Start Quiz
+            </button>
+            <button id="shuffleQuiz"
+              class="px-3 py-1 bg-yellow-500 hover:bg-yellow-600 text-white rounded text-sm transition-colors">
+              Shuffle
+            </button>
+
+            <!-- Score & Progress -->
+            <div class="ml-auto flex items-center gap-4 text-sm text-slate-200">
+              <span>Score: <span id="quizScore" class="font-semibold text-emerald-400">0</span></span>
+              <span>Progress: <span id="quizProgress" class="font-semibold text-amber-400">0 / 0</span></span>
+            </div>
+          </div>
+
+          <!-- 🎉 Finish Message -->
+          <div id="quizFinishMsg"
+            class="hidden mt-4 text-center text-lg font-semibold text-emerald-400 bg-slate-800/50 p-3 rounded-lg">
+            🎉 Congratulations! You’ve completed this level! 🎉
+          </div>
+
+          <div class="bg-slate-700 p-6 rounded-2xl text-center">
+            <div id="quizCard" class="text-7xl font-bold mb-6">あ</div>
+            <div id="quizChoices" class="grid grid-cols-2 gap-3 max-w-md mx-auto"></div>
+            <div id="quizText" class="text-xl text-slate-200 my-4">Test your memory</div>
+          </div>
+        </div>
+
+        <!-- Vocabulary Fill-in-the-Blank Quiz Panel -->
+        <div id="vocabFillPanel" class="panel hidden">
+          <div class="flex items-center gap-3 mb-4">
+            <label class="text-sm">Category</label>
+            <select id="vfCategory" class="bg-slate-700 text-slate-100 rounded px-2 py-1 text-sm w-60"></select>
+            <button id="vfStart" class="px-3 py-1 bg-emerald-500 rounded">
+              Start Quiz
+            </button>
+            <div class="ml-auto text-sm">
+              Score: <span id="vfScore">0</span>
+            </div>
+          </div>
+
+          <div class="bg-slate-700 p-6 rounded-2xl text-center">
+            <div id="vfEnglish" class="text-2xl font-bold mb-2"></div>
+            <div id="vfRomaji" class="text-lg text-slate-300 mb-4"></div>
+
+            <div id="vfSlots" class="flex justify-center gap-2 mb-6"></div>
+            <div id="vfLetters" class="flex flex-wrap justify-center gap-2">
+              <h1 class="text-3xl font-bold">Test your vocabulary</h1>
+            </div>
+            <h1 class="mt-6 text-sm text-slate-400">
+              Drag and drop the hiragana characters to fill in the word.
+            </h1>
+
+            <div class="mt-4 text-sm text-slate-300">
+              Progress: <span id="vfProgress">0 / 0</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- RIGHT BENTO BOX -->
+      <aside class="lg:col-span-1 sticky top-6">
+        <div class="bg-slate-800 p-4 rounded-2xl">
+          <div class="flex justify-between items-center mb-2">
+            <h2 class="text-lg font-semibold">Hiragana Chart</h2>
+            <button id="toggleChartBtn" class="px-2 py-1 text-xs bg-indigo-600 rounded hover:bg-indigo-500">
+              Hide
+            </button>
+          </div>
+          <div id="hiraganaChartContainer"
+            class="transition-all duration-300 ease-in-out overflow-auto max-h-[90vh] scrollbar-hide">
+            <!-- Basic Hiragana -->
+            <h3 class="font-semibold mt-2 mb-1">Basic</h3>
+            <div id="hiraganaChart" class="grid grid-cols-5 gap-2 text-center text-sm"></div>
+          </div>
+          <p class="mt-3 text-xs text-slate-400">
+            Click a cell to copy romaji and hear a tone.
+          </p>
+        </div>
+      </aside>
+    </main>
+
+    <footer class="mt-6 text-xs text-slate-500 text-center">
+      If something still fails, copy any console errors and paste them here.
+    </footer>
+  </div>
 
-                <button class="tab-btn px-3 py-2 rounded" data-target="vocabFillPanel">
-                    Vocab Quiz
-                </button>
-            </nav>
-        </header>
-
-        <main class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <!-- MAIN LEFT/Center -->
-            <section class="lg:col-span-2">
-                <!-- Vocabulary Panel -->
-                <div id="vocabPanel" class="panel">
-                    <div class="flex items-center gap-3 mb-4 flex-wrap">
-                        <label class="text-sm">Category</label>
-                        <select id="categorySelect"
-                            class="bg-slate-700 text-slate-100 rounded px-2 py-1 text-sm w-60"></select>
-
-                        <label class="text-sm">Direction</label>
-                        <select id="direction" class="bg-slate-700 text-slate-100 rounded px-2 py-1 text-sm">
-                            <option value="jp_en">Japanese → English</option>
-                            <option value="en_jp">English → Japanese</option>
-                        </select>
-
-                        <button id="shuffleVocab" class="px-3 py-1 bg-yellow-500 rounded">
-                            Shuffle
-                        </button>
-                        <button id="studyAll" class="px-3 py-1 bg-emerald-500 rounded">
-                            Study Mode
-                        </button>
-
-                        <div class="ml-auto text-sm text-slate-300" id="vocabCategoryCount"></div>
-                    </div>
-
-                    <div class="card-flip bg-slate-700 p-6 rounded-2xl relative mb-4 flex justify-center">
-                        <div id="cardInner"
-                            class="card-inner rounded-lg h-[60vh] w-full flex flex-col items-center justify-center relative">
-                            <!-- Front Face -->
-                            <div class="card-face flex flex-col items-center justify-center h-full" id="frontFace">
-                                <div id="bigPrimary" class="text-5xl font-extrabold text-center"></div>
-                                <div id="bigSub" class="mt-3 text-xl text-slate-300 text-center"></div>
-                                <div id="bigKanji" class="mt-2 text-3xl text-slate-200/80 text-center"></div>
-                                <img id="vocabImage" class="mt-4 rounded-lg max-h-[30vh]" src="" alt="" />
-                            </div>
-
-                            <!-- Back Face -->
-                            <div class="card-face card-back flex flex-col items-center justify-center" id="backFace">
-                                <div id="bigSecondary" class="text-3xl font-semibold text-center"></div>
-                                <div id="bigHint" class="mt-2 text-sm text-slate-300 text-center"></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="flex justify-between mb-4">
-                        <div class="flex gap-2">
-                            <button id="prevV" class="px-3 py-2 bg-slate-600 rounded">
-                                Prev
-                            </button>
-                            <button id="flipV" class="px-3 py-2 bg-emerald-500 text-slate-900 rounded">
-                                Flip
-                            </button>
-                            <button id="nextV" class="px-3 py-2 bg-indigo-500 rounded">
-                                Next
-                            </button>
-                        </div>
-                        <div class="flex gap-2">
-                            <span id="vocabProgress" class="text-sm text-slate-300 self-center">0 / 0</span>
-                        </div>
-                    </div>
-
-                    <div id="studyList" class="hidden bg-slate-700 p-4 rounded-lg mb-4 max-h-64 overflow-auto text-sm">
-                    </div>
-                </div>
-
-                <!-- Hiragana Quiz Panel -->
-                <div id="hiraganaQuizPanel" class="panel hidden">
-                    <div class="flex items-center gap-3 mb-4">
-                        <label class="text-sm">Level</label>
-                        <select id="hLevel" class="bg-slate-700 text-slate-100 rounded px-2 py-1 text-sm">
-                            <option value="a_ko">A–Ko</option>
-                            <option value="sa_to">Sa–To</option>
-                            <option value="na_ho">Na–Ho</option>
-                            <option value="ma_yo">Ma–Yo</option>
-                            <option value="ra_n">Ra–N</option>
-                            <option value="all">All</option>
-                        </select>
-                        <button id="startQuiz" class="px-3 py-1 bg-emerald-500 rounded">
-                            Start Quiz
-                        </button>
-                        <button id="shuffleQuiz" class="px-3 py-1 bg-yellow-500 rounded">
-                            Shuffle
-                        </button>
-                        <div class="ml-auto text-sm">
-                            Score: <span id="quizScore">0</span>
-                        </div>
-                    </div>
-
-                    <div class="bg-slate-700 p-6 rounded-2xl text-center">
-                        <div id="quizCard" class="text-7xl font-bold mb-4">あ</div>
-                        <div id="quizChoices" class="grid grid-cols-2 gap-3 max-w-md mx-auto"></div>
-                        <div class="mt-4 text-sm text-slate-300">
-                            Progress: <span id="quizProgress">0 / 0</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Vocabulary Fill-in-the-Blank Quiz Panel -->
-                <div id="vocabFillPanel" class="panel hidden">
-                    <div class="flex items-center gap-3 mb-4">
-                        <label class="text-sm">Category</label>
-                        <select id="vfCategory"
-                            class="bg-slate-700 text-slate-100 rounded px-2 py-1 text-sm w-60"></select>
-                        <button id="vfStart" class="px-3 py-1 bg-emerald-500 rounded">
-                            Start Quiz
-                        </button>
-                        <div class="ml-auto text-sm">
-                            Score: <span id="vfScore">0</span>
-                        </div>
-                    </div>
-
-                    <div class="bg-slate-700 p-6 rounded-2xl text-center">
-                        <div id="vfEnglish" class="text-2xl font-bold mb-2"></div>
-                        <div id="vfRomaji" class="text-lg text-slate-300 mb-4"></div>
-
-                        <div id="vfSlots" class="flex justify-center gap-2 mb-6"></div>
-                        <div id="vfLetters" class="flex flex-wrap justify-center gap-2">
-                            <h1 class="text-3xl font-bold">Test your vocabulary</h1>
-                        </div>
-                        <h1 class="mt-6 text-sm text-slate-400">
-                            Drag and drop the hiragana characters to fill in the word.
-                        </h1>
-
-                        <div class="mt-4 text-sm text-slate-300">
-                            Progress: <span id="vfProgress">0 / 0</span>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- RIGHT BENTO BOX -->
-            <aside class="lg:col-span-1 sticky top-6">
-                <div class="bg-slate-800 p-4 rounded-2xl">
-                    <div class="flex justify-between items-center mb-2">
-                        <h2 class="text-lg font-semibold">Hiragana Chart</h2>
-                        <button id="toggleChartBtn" class="px-2 py-1 text-xs bg-indigo-600 rounded hover:bg-indigo-500">
-                            Hide
-                        </button>
-                    </div>
-                    <div id="hiraganaChartContainer"
-                        class="transition-all duration-300 ease-in-out overflow-auto max-h-[90vh] scrollbar-hide">
-                        <!-- Basic Hiragana -->
-                        <h3 class="font-semibold mt-2 mb-1">Basic</h3>
-                        <div id="hiraganaChart" class="grid grid-cols-5 gap-2 text-center text-sm"></div>
-                    </div>
-                    <p class="mt-3 text-xs text-slate-400">
-                        Click a cell to copy romaji and hear a tone.
-                    </p>
-                </div>
-            </aside>
-        </main>
-
-        <footer class="mt-6 text-xs text-slate-500 text-center">
-            If something still fails, copy any console errors and paste them here.
-        </footer>
-    </div>
-
-    <div id="confettiRoot"></div>
-
-    <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            // --- Data ---
-            const CATEGORIES = {
-                Basics: [
-                    {
-                        jp: "こんにちは",
-                        rom: "konnichiwa",
-                        en: "hello",
-                        img: "https://img.freepik.com/free-photo/friendly-positive-blonde-female-smiling-broadly-happily-greeting-with-hand-pleased-meet-them-positive-emotions-feelings-face-expression_176420-15009.jpg?t=st=1762423095~exp=1762426695~hmac=07236769dd2586ccde19a96a2e35c084dd0d3f416202654d48cd1246898c801f&w=1480",
-                    },
-                    {
-                        jp: "おはよう",
-                        rom: "ohayou",
-                        en: "good morning",
-                        img: "images/basics/good_morning.jpg",
-                    },
-                    {
-                        jp: "こんばんは",
-                        rom: "konbanwa",
-                        en: "good evening",
-                        img: "images/basics/good_evening.jpg",
-                    },
-                ],
-                Places: [
-                    {
-                        jp: "へや",
-                        rom: "heya",
-                        en: "room",
-                        img: "images/places/room.jpg",
-                    },
-                    {
-                        jp: "いま",
-                        rom: "ima",
-                        en: "living room",
-                        img: "images/places/living_room.jpg",
-                    },
-                    {
-                        jp: "だいどころ",
-                        rom: "daidokoro",
-                        en: "kitchen",
-                        img: "images/places/kitchen.jpg",
-                    },
-                ],
-                Family: [
-                    {
-                        jp: "おかあさん",
-                        rom: "okaasan",
-                        en: "mother",
-                        img: "images/family/mother.jpg",
-                    },
-                    {
-                        jp: "おとうさん",
-                        rom: "otousan",
-                        en: "father",
-                        img: "images/family/father.jpg",
-                    },
-                ],
-                Colors: [
-                    { jp: "あか", rom: "aka", en: "red", img: "images/colors/red.jpg" },
-                    {
-                        jp: "あお",
-                        rom: "ao",
-                        en: "blue",
-                        img: "images/colors/blue.jpg",
-                    },
-                ],
-                Animals: [
-                    {
-                        jp: "ねこ",
-                        rom: "neko",
-                        en: "cat",
-                        img: "images/animals/cat.jpg",
-                    },
-                    {
-                        jp: "いぬ",
-                        rom: "inu",
-                        en: "dog",
-                        img: "images/animals/dog.jpg",
-                    },
-                ],
-                Food: [
-                    {
-                        jp: "ごはん",
-                        rom: "gohan",
-                        en: "rice",
-                        img: "images/food/rice.jpg",
-                    },
-                    {
-                        jp: "パン",
-                        rom: "pan",
-                        en: "bread",
-                        img: "images/food/bread.jpg",
-                    },
-                ],
-                Numbers: [
-                    {
-                        jp: "いち",
-                        rom: "ichi",
-                        en: "one",
-                        img: "images/numbers/one.jpg",
-                    },
-                    { jp: "に", rom: "ni", en: "two", img: "images/numbers/two.jpg" },
-                ],
-                Verbs: [
-                    {
-                        jp: "たべる",
-                        rom: "taberu",
-                        en: "to eat",
-                        img: "images/verbs/eat.jpg",
-                    },
-                    {
-                        jp: "のむ",
-                        rom: "nomu",
-                        en: "to drink",
-                        img: "images/verbs/drink.jpg",
-                    },
-                ],
-            };
-
-            const toggleChartBtn = document.getElementById("toggleChartBtn");
-            const chartContainer = document.getElementById(
-                "hiraganaChartContainer"
-            );
-
-            toggleChartBtn.addEventListener("click", () => {
-                chartContainer.classList.toggle("hidden");
-                toggleChartBtn.textContent = chartContainer.classList.contains(
-                    "hidden"
-                )
-                    ? "Show"
-                    : "Hide";
-            });
-
-            const hiraganaAll = [
-                ["あ", "a"],
-                ["い", "i"],
-                ["う", "u"],
-                ["え", "e"],
-                ["お", "o"],
-                ["か", "ka"],
-                ["き", "ki"],
-                ["く", "ku"],
-                ["け", "ke"],
-                ["こ", "ko"],
-                ["さ", "sa"],
-                ["し", "shi"],
-                ["す", "su"],
-                ["せ", "se"],
-                ["そ", "so"],
-                ["た", "ta"],
-                ["ち", "chi"],
-                ["つ", "tsu"],
-                ["て", "te"],
-                ["と", "to"],
-                ["な", "na"],
-                ["に", "ni"],
-                ["ぬ", "nu"],
-                ["ね", "ne"],
-                ["の", "no"],
-                ["は", "ha"],
-                ["ひ", "hi"],
-                ["ふ", "fu"],
-                ["へ", "he"],
-                ["ほ", "ho"],
-                ["ま", "ma"],
-                ["み", "mi"],
-                ["む", "mu"],
-                ["め", "me"],
-                ["も", "mo"],
-                ["や", "ya"],
-                ["ゆ", "yu"],
-                ["よ", "yo"],
-                ["ら", "ra"],
-                ["り", "ri"],
-                ["る", "ru"],
-                ["れ", "re"],
-                ["ろ", "ro"],
-                ["わ", "wa"],
-                ["を", "wo"],
-                ["ん", "n"],
-            ];
-
-            // --- Additional Hiragana Tables ---
-            // Voiced consonants
-            const voicedGroups = {
-                G: [
-                    ["が", "ga"],
-                    ["ぎ", "gi"],
-                    ["ぐ", "gu"],
-                    ["げ", "ge"],
-                    ["ご", "go"],
-                ],
-                Z: [
-                    ["ざ", "za"],
-                    ["じ", "ji"],
-                    ["ず", "zu"],
-                    ["ぜ", "ze"],
-                    ["ぞ", "zo"],
-                ],
-                D: [
-                    ["だ", "da"],
-                    ["ぢ", "ji"],
-                    ["づ", "zu"],
-                    ["で", "de"],
-                    ["ど", "do"],
-                ],
-                B: [
-                    ["ば", "ba"],
-                    ["び", "bi"],
-                    ["ぶ", "bu"],
-                    ["べ", "be"],
-                    ["ぼ", "bo"],
-                ],
-                P: [
-                    ["ぱ", "pa"],
-                    ["ぴ", "pi"],
-                    ["ぷ", "pu"],
-                    ["ぺ", "pe"],
-                    ["ぽ", "po"],
-                ],
-            };
-
-            // Yōon (combined sounds)
-            const youonGroups = {
-                Kya: [
-                    ["きゃ", "kya"],
-                    ["きゅ", "kyu"],
-                    ["きょ", "kyo"],
-                ],
-                Sha: [
-                    ["しゃ", "sha"],
-                    ["しゅ", "shu"],
-                    ["しょ", "sho"],
-                ],
-                Cha: [
-                    ["ちゃ", "cha"],
-                    ["ちゅ", "chu"],
-                    ["ちょ", "cho"],
-                ],
-                Nyu: [
-                    ["にゃ", "nya"],
-                    ["にゅ", "nyu"],
-                    ["にょ", "nyo"],
-                ],
-                Hya: [
-                    ["ひゃ", "hya"],
-                    ["ひゅ", "hyu"],
-                    ["ひょ", "hyo"],
-                ],
-                Mya: [
-                    ["みゃ", "mya"],
-                    ["みゅ", "myu"],
-                    ["みょ", "myo"],
-                ],
-                Rya: [
-                    ["りゃ", "rya"],
-                    ["りゅ", "ryu"],
-                    ["りょ", "ryo"],
-                ],
-                Gya: [
-                    ["ぎゃ", "gya"],
-                    ["ぎゅ", "gyu"],
-                    ["ぎょ", "gyo"],
-                ],
-                Ja: [
-                    ["じゃ", "ja"],
-                    ["じゅ", "ju"],
-                    ["じょ", "jo"],
-                ],
-                Bya: [
-                    ["びゃ", "bya"],
-                    ["びゅ", "byu"],
-                    ["びょ", "byo"],
-                ],
-                Pya: [
-                    ["ぴゃ", "pya"],
-                    ["ぴゅ", "pyu"],
-                    ["ぴょ", "pyo"],
-                ],
-            };
-
-            // Function to render button groups
-            function renderHiraganaButtons(containerId, groups) {
-                const container = document.getElementById(containerId);
-
-                Object.keys(groups).forEach((grp) => {
-                    // Group title
-                    const title = document.createElement("div");
-                    title.className = "text-lg font-bold mt-4 mb-2";
-                    title.textContent = grp;
-                    container.appendChild(title);
-
-                    // Button container (flex wrap)
-                    const btnContainer = document.createElement("div");
-                    btnContainer.className = "grid grid-cols-5 gap-2 mb-4"; // 5 per row
-
-                    // groups[grp] is an array of [ch, rom] pairs
-                    groups[grp].forEach(([ch, rom]) => {
-                        const btn = document.createElement("button");
-                        btn.className =
-                            "p-2 rounded bg-slate-700 hover:bg-slate-600 w-full";
-                        btn.innerHTML = `<div class="text-xl font-semibold">${ch}</div><div class="text-xs text-slate-300">${rom}</div>`;
-                        btn.addEventListener("click", async () => {
-                            try {
-                                await navigator.clipboard.writeText(rom);
-                            } catch (e) { }
-                            playTone(400);
-                        });
-                        btnContainer.appendChild(btn);
-                    });
-
-                    container.appendChild(btnContainer);
-                });
-            }
-
-            // Render voiced & yōon groups
-            renderHiraganaButtons("hiraganaChartContainer", voicedGroups);
-            renderHiraganaButtons("hiraganaChartContainer", youonGroups);
-
-            // DOM refs
-            const tabBtns = document.querySelectorAll(".tab-btn");
-            const panels = document.querySelectorAll(".panel");
-            const categorySelect = document.getElementById("categorySelect");
-            const direction = document.getElementById("direction");
-            const shuffleVocab = document.getElementById("shuffleVocab");
-            const studyAll = document.getElementById("studyAll");
-            const studyList = document.getElementById("studyList");
-
-            const bigPrimary = document.getElementById("bigPrimary");
-            const bigSub = document.getElementById("bigSub");
-            const bigKanji = document.getElementById("bigKanji");
-            const bigSecondary = document.getElementById("bigSecondary");
-            const bigHint = document.getElementById("bigHint");
-            const cardInner = document.getElementById("cardInner");
-            const prevV = document.getElementById("prevV");
-            const nextV = document.getElementById("nextV");
-            const flipV = document.getElementById("flipV");
-            const vocabProgress = document.getElementById("vocabProgress");
-            const vocabCategoryCount =
-                document.getElementById("vocabCategoryCount");
-
-            // Quiz refs
-            const hLevel = document.getElementById("hLevel");
-            const startQuiz = document.getElementById("startQuiz");
-            const shuffleQuiz = document.getElementById("shuffleQuiz");
-            const quizCard = document.getElementById("quizCard");
-            const quizChoices = document.getElementById("quizChoices");
-            const quizScore = document.getElementById("quizScore");
-            const quizProgress = document.getElementById("quizProgress");
-
-            // populate category dropdown
-            Object.keys(CATEGORIES).forEach((cat) => {
-                const opt = document.createElement("option");
-                opt.value = cat;
-                opt.textContent = cat;
-                categorySelect.appendChild(opt);
-            });
-
-            // populate hiragana chart
-            const hiraganaChart = document.getElementById("hiraganaChart");
-            hiraganaAll.forEach(([ch, rom]) => {
-                const btn = document.createElement("button");
-                btn.className = "p-2 rounded bg-slate-700 hover:bg-slate-600 w-full";
-                btn.innerHTML = `<div class="text-xl font-semibold">${ch}</div><div class="text-xs text-slate-300">${rom}</div>`;
-                btn.addEventListener("click", async () => {
-                    try {
-                        await navigator.clipboard.writeText(rom);
-                    } catch (e) { } // small tone
-                    try {
-                        const ac = new (window.AudioContext ||
-                            window.webkitAudioContext)();
-                        const o = ac.createOscillator();
-                        const g = ac.createGain();
-                        o.frequency.value = 400;
-                        g.gain.value = 0.02;
-                        o.connect(g);
-                        g.connect(ac.destination);
-                        o.start();
-                        g.gain.exponentialRampToValueAtTime(
-                            0.0001,
-                            ac.currentTime + 0.08
-                        );
-                        setTimeout(() => {
-                            try {
-                                o.stop();
-                                ac.close();
-                            } catch (e) { }
-                        }, 120);
-                    } catch (e) { }
-                });
-                hiraganaChart.appendChild(btn);
-            });
-
-            // vocabulary state
-            let activeCategory = categorySelect.value || Object.keys(CATEGORIES)[0];
-            let pool = CATEGORIES[activeCategory].slice();
-            let vIndex = 0;
-
-            function renderVocab() {
-                if (!pool || pool.length === 0) {
-                    bigPrimary.textContent = "—";
-                    bigSub.textContent = "";
-                    bigKanji.textContent = "";
-                    bigSecondary.textContent = "";
-                    bigHint.textContent = "";
-                    vocabProgress.textContent = "0 / 0";
-                    vocabCategoryCount.textContent = "";
-
-                    // Remove image if exists
-                    const existingImg = document.getElementById("vocabImage");
-                    if (existingImg) existingImg.remove();
-
-                    return;
-                }
-
-                const it = pool[vIndex];
-                const dir = direction.value;
-
-                if (dir === "jp_en") {
-                    bigPrimary.textContent = it.jp;
-                    bigSub.textContent = it.rom || "";
-                    bigKanji.textContent = it.kanji || "";
-                    bigSecondary.textContent = "";
-                    bigHint.textContent = "";
-                } else {
-                    bigPrimary.textContent = it.en;
-                    bigSub.textContent = "";
-                    bigKanji.textContent = "";
-                    bigSecondary.textContent = it.jp;
-                    bigHint.textContent = it.rom || "";
-                }
-
-                vocabProgress.textContent = `${vIndex + 1} / ${pool.length}`;
-                vocabCategoryCount.textContent = `${activeCategory} • ${pool.length} words`;
-
-                // Render image
-                let imgEl = document.getElementById("vocabImage");
-                if (!imgEl) {
-                    imgEl = document.createElement("img");
-                    imgEl.id = "vocabImage";
-                    imgEl.className = "mt-4 mx-auto rounded-lg max-h-48"; // Tailwind styling
-                    bigPrimary.parentNode.insertBefore(imgEl, bigPrimary.nextSibling);
-                }
-                imgEl.src = it.img || ""; // Fallback if no image
-                imgEl.alt = it.en || it.jp;
-            }
-
-            categorySelect.addEventListener("change", () => {
-                activeCategory = categorySelect.value;
-                pool = CATEGORIES[activeCategory].slice();
-                vIndex = 0;
-                renderVocab();
-            });
-            direction.addEventListener("change", () => {
-                cardInner.classList.remove("flipped");
-                renderVocab();
-            });
-            shuffleVocab.addEventListener("click", () => {
-                shuffle(pool);
-                vIndex = 0;
-                renderVocab();
-            });
-            prevV.addEventListener("click", () => {
-                if (pool.length === 0) return;
-                vIndex = (vIndex - 1 + pool.length) % pool.length;
-                cardInner.classList.remove("flipped");
-                renderVocab();
-            });
-            nextV.addEventListener("click", () => {
-                if (pool.length === 0) return;
-                vIndex = (vIndex + 1) % pool.length;
-                cardInner.classList.remove("flipped");
-                renderVocab();
-            });
-            flipV.addEventListener("click", () => {
-                cardInner.classList.toggle("flipped");
-                const showingBack = cardInner.classList.contains("flipped");
-                const it = pool[vIndex];
-                if (!it) return;
-                if (showingBack) {
-                    if (direction.value === "jp_en") {
-                        bigSecondary.textContent = it.en;
-                        bigHint.textContent = it.rom || "";
-                    } else {
-                        bigSecondary.textContent = it.jp;
-                        bigHint.textContent = it.rom || "";
-                    }
-                } else {
-                    bigSecondary.textContent = "";
-                    bigHint.textContent = "";
-                }
-            });
-
-            studyAll.addEventListener("click", () => {
-                studyList.innerHTML = pool
-                    .map(
-                        (i) =>
-                            `<div class="p-2 border-b border-slate-700">${i.jp} ${i.rom ? "(" + i.rom + ")" : ""
-                            } — ${i.en}</div>`
-                    )
-                    .join("");
-                studyList.classList.toggle("hidden");
-            });
-
-            // initial render
-            renderVocab();
-
-            // Tab switching
-            tabBtns.forEach((b) =>
-                b.addEventListener("click", () => {
-                    tabBtns.forEach((x) => x.classList.remove("bg-slate-700"));
-                    b.classList.add("bg-slate-700");
-                    panels.forEach((p) => p.classList.add("hidden"));
-                    const target = document.getElementById(b.dataset.target);
-                    if (target) target.classList.remove("hidden");
-                })
-            );
-
-            // default show vocab
-            document.querySelector('.tab-btn[data-target="vocabPanel"]').click();
-
-            // --- Hiragana quiz logic ---
-            function shuffleArr(a) {
-                for (let i = a.length - 1; i > 0; i--) {
-                    const j = Math.floor(Math.random() * (i + 1));
-                    [a[i], a[j]] = [a[j], a[i]];
-                }
-            }
-
-            function levelGroup(key) {
-                if (key === "a_ko") return hiraganaAll.slice(0, 10);
-                if (key === "sa_to") return hiraganaAll.slice(10, 20);
-                if (key === "na_ho") return hiraganaAll.slice(20, 30);
-                if (key === "ma_yo") return hiraganaAll.slice(30, 38);
-                if (key === "ra_n") return hiraganaAll.slice(38);
-                return hiraganaAll.slice();
-            }
-
-            let quizPool = [];
-            let qIndex = 0;
-            let qScore = 0;
-            function buildQuiz(key) {
-                const base = levelGroup(key); // create 50-item pool
-                let pool = [];
-                if (key === "all") {
-                    pool = base.map((x) => ({ ch: x[0], rom: x[1] }));
-                    while (pool.length < 50) {
-                        const p = base[Math.floor(Math.random() * base.length)];
-                        pool.push({ ch: p[0], rom: p[1] });
-                    }
-                } else {
-                    const chosen = base.slice(0, 5);
-                    chosen.forEach((c) => {
-                        for (let i = 0; i < 10; i++) pool.push({ ch: c[0], rom: c[1] });
-                    });
-                }
-                shuffleArr(pool);
-                quizPool = pool;
-                qIndex = 0;
-                qScore = 0;
-                quizScore.textContent = qScore;
-                renderQuiz();
-            }
-
-            function renderQuiz() {
-                if (!quizPool.length) return;
-                const it = quizPool[qIndex];
-                quizCard.textContent = it.ch; // choices: correct + 3 random
-                const options = [it.rom];
-                const pool = hiraganaAll.map((x) => x[1]).filter((r) => r !== it.rom);
-                shuffleArr(pool);
-                options.push(pool[0], pool[1], pool[2]);
-                shuffleArr(options);
-                quizChoices.innerHTML = "";
-                options.forEach((opt) => {
-                    const b = document.createElement("button");
-                    b.className =
-                        "choice-btn px-4 py-3 bg-slate-600 rounded hover:bg-slate-500";
-                    b.textContent = opt;
-                    b.addEventListener("click", () => {
-                        // disable further clicks briefly
-                        Array.from(quizChoices.children).forEach(
-                            (ch) => (ch.disabled = true)
-                        );
-                        if (opt === it.rom) {
-                            b.classList.remove("bg-slate-600");
-                            b.classList.add("bg-emerald-500");
-                            qScore++;
-                            quizScore.textContent = qScore;
-                            playTone(800);
-                        } else {
-                            b.classList.remove("bg-slate-600");
-                            b.classList.add("bg-red-600");
-                            playTone(220);
-                        }
-                        // reveal correct
-                        Array.from(quizChoices.children).forEach((ch) => {
-                            if (ch.textContent === it.rom) {
-                                ch.classList.remove("bg-slate-600");
-                                ch.classList.add("bg-emerald-500");
-                            }
-                        });
-                        setTimeout(() => {
-                            qIndex = (qIndex + 1) % quizPool.length;
-                            renderQuiz();
-                        }, 700);
-                    });
-                    quizChoices.appendChild(b);
-                });
-                quizProgress.textContent = `${qIndex + 1} / ${quizPool.length}`;
-            }
-
-            startQuiz.addEventListener("click", () => {
-                buildQuiz(hLevel.value);
-            });
-            shuffleQuiz.addEventListener("click", () => {
-                if (quizPool.length) {
-                    shuffleArr(quizPool);
-                    qIndex = 0;
-                    renderQuiz();
-                }
-            });
-
-            function playTone(freq) {
-                try {
-                    const ac = new (window.AudioContext || window.webkitAudioContext)();
-                    const o = ac.createOscillator();
-                    const g = ac.createGain();
-                    o.frequency.value = freq;
-                    g.gain.value = 0.02;
-                    o.connect(g);
-                    g.connect(ac.destination);
-                    o.start();
-                    g.gain.exponentialRampToValueAtTime(0.0001, ac.currentTime + 0.08);
-                    setTimeout(() => {
-                        try {
-                            o.stop();
-                            ac.close();
-                        } catch (e) { }
-                    }, 120);
-                } catch (e) { }
-            }
-
-            // helpful keyboard shortcuts for vocab
-            document.addEventListener("keydown", (e) => {
-                const activePanel = Array.from(panels).find(
-                    (p) => !p.classList.contains("hidden")
-                )?.id;
-                if (activePanel === "vocabPanel") {
-                    if (e.key === "ArrowRight") nextV.click();
-                    if (e.key === "ArrowLeft") prevV.click();
-                    if (e.key === " ") {
-                        e.preventDefault();
-                        flipV.click();
-                    }
-                }
-            });
-
-            // --- Vocabulary Fill-in-the-Blank Quiz ---
-            const vfCategory = document.getElementById("vfCategory");
-            const vfStart = document.getElementById("vfStart");
-            const vfEnglish = document.getElementById("vfEnglish");
-            const vfRomaji = document.getElementById("vfRomaji");
-            const vfSlots = document.getElementById("vfSlots");
-            const vfLetters = document.getElementById("vfLetters");
-            const vfScore = document.getElementById("vfScore");
-            const vfProgress = document.getElementById("vfProgress");
-            const confettiRoot = document.getElementById("confettiRoot");
-
-            let vfPool = [];
-            let vfIndex = 0;
-            let vfPoints = 0;
-
-            // Populate categories
-            Object.keys(CATEGORIES).forEach((cat) => {
-                const opt = document.createElement("option");
-                opt.value = cat;
-                opt.textContent = cat;
-                vfCategory.appendChild(opt);
-            });
-
-            // Drag & Drop helpers
-            function allowDrop(ev) {
-                ev.preventDefault();
-            }
-
-            function drag(ev) {
-                ev.dataTransfer.setData("text", ev.target.dataset.letter);
-            }
-
-            // drop on slot
-            function drop(ev) {
-                ev.preventDefault();
-                const letter = ev.dataTransfer.getData("text");
-                const slot = ev.target;
-                if (!slot.textContent) {
-                    slot.textContent = letter;
-                    slot.classList.add("filled");
-                    // remove letter from pool
-                    const poolBtn = Array.from(vfLetters.children).find(
-                        (b) => b.dataset.letter === letter
-                    );
-                    if (poolBtn) poolBtn.remove();
-                    checkAnswer();
-                } else {
-                    // invalid drop: return letter to pool
-                    const b = document.createElement("div");
-                    b.className =
-                        "px-3 py-2 bg-slate-600 rounded cursor-pointer select-none";
-                    b.textContent = letter;
-                    b.draggable = true;
-                    b.dataset.letter = letter;
-                    b.addEventListener("dragstart", drag);
-                    vfLetters.appendChild(b);
-                }
-            }
-
-            // Remove letter on slot click
-            function enableSlotRemoval(slot) {
-                slot.addEventListener("click", () => {
-                    if (slot.textContent) {
-                        const letter = slot.textContent;
-                        const b = document.createElement("div");
-                        b.className =
-                            "px-3 py-2 bg-slate-600 rounded cursor-pointer select-none";
-                        b.textContent = letter;
-                        b.draggable = true;
-                        b.dataset.letter = letter;
-                        b.addEventListener("dragstart", drag);
-                        vfLetters.appendChild(b);
-                        slot.textContent = "";
-                        slot.classList.remove("filled");
-                    }
-                });
-            }
-
-            // Check if the filled slots match
-            function checkAnswer() {
-                const it = vfPool[vfIndex];
-                const current = Array.from(vfSlots.children)
-                    .map((c) => c.textContent)
-                    .join("");
-                if (current === it.jp) {
-                    vfPoints++;
-                    vfScore.textContent = vfPoints;
-                    playTone(800);
-                    showConfetti();
-                    setTimeout(nextVfWord, 500);
-                }
-            }
-
-            function nextVfWord() {
-                vfIndex++;
-                if (vfIndex >= vfPool.length) vfIndex = 0; // loop
-                renderVfWord();
-            }
-
-            function renderVfWord() {
-                if (!vfPool.length) return;
-                const it = vfPool[vfIndex];
-                vfEnglish.textContent = it.en;
-                vfRomaji.textContent = it.rom;
-                vfProgress.textContent = `${vfIndex + 1} / ${vfPool.length}`;
-
-                // render slots
-                vfSlots.innerHTML = "";
-                it.jp.split("").forEach((ch) => {
-                    const slot = document.createElement("div");
-                    slot.className =
-                        "w-10 h-12 border-b-2 border-slate-400 text-2xl flex items-center justify-center cursor-pointer";
-                    slot.addEventListener("dragover", allowDrop);
-                    slot.addEventListener("drop", drop);
-                    enableSlotRemoval(slot);
-                    vfSlots.appendChild(slot);
-                });
-
-                // render letters: correct + random distractors
-                vfLetters.innerHTML = "";
-                const letters = it.jp.split("").slice();
-                while (letters.length < it.jp.length + 3) {
-                    const r =
-                        hiraganaAll[Math.floor(Math.random() * hiraganaAll.length)][0];
-                    if (!letters.includes(r)) letters.push(r);
-                }
-                shuffleArr(letters);
-                letters.forEach((l) => {
-                    const b = document.createElement("div");
-                    b.className =
-                        "px-3 py-2 bg-slate-600 rounded cursor-pointer select-none";
-                    b.textContent = l;
-                    b.draggable = true;
-                    b.dataset.letter = l;
-                    b.addEventListener("dragstart", drag);
-                    vfLetters.appendChild(b);
-                });
-            }
-
-            // Confetti
-            function showConfetti() {
-                const rect = vfSlots.getBoundingClientRect(); // position of the word
-                for (let i = 0; i < 50; i++) {
-                    const c = document.createElement("div");
-                    c.className = "confetti";
-                    // random position within the word slots
-                    c.style.left = rect.left + Math.random() * rect.width + "px";
-                    c.style.top = rect.top + Math.random() * rect.height + "px";
-                    c.textContent = "🎉";
-                    confettiRoot.appendChild(c);
-
-                    const fall = c.animate(
-                        [
-                            { transform: `translateY(0) rotate(0deg)`, opacity: 1 },
-                            {
-                                transform: `translateY(${50 + Math.random() * 50}px) rotate(${Math.random() * 720
-                                    }deg)`,
-                                opacity: 0,
-                            },
-                        ],
-                        { duration: 1000 + Math.random() * 500, easing: "ease-out" }
-                    );
-
-                    fall.onfinish = () => c.remove();
-                }
-            }
-
-            vfStart.addEventListener("click", () => {
-                const cat = vfCategory.value;
-                vfPool = CATEGORIES[cat].slice();
-                shuffleArr(vfPool);
-                vfIndex = 0;
-                vfPoints = 0;
-                vfScore.textContent = vfPoints;
-                renderVfWord();
-            });
-
-            const container = document.getElementById("hiraganaChartContainer");
-
-            let isDown = false;
-            let startX;
-            let scrollLeft;
-
-            container.addEventListener("mousedown", (e) => {
-                isDown = true;
-                container.classList.add("cursor-grabbing");
-                startX = e.pageX - container.offsetLeft;
-                scrollLeft = container.scrollLeft;
-            });
-
-            container.addEventListener("mouseleave", () => {
-                isDown = false;
-                container.classList.remove("cursor-grabbing");
-            });
-
-            container.addEventListener("mouseup", () => {
-                isDown = false;
-                container.classList.remove("cursor-grabbing");
-            });
-
-            container.addEventListener("mousemove", (e) => {
-                if (!isDown) return;
-                e.preventDefault();
-                const x = e.pageX - container.offsetLeft;
-                const walk = (x - startX) * 2; // scroll speed
-                container.scrollLeft = scrollLeft - walk;
-            });
-        });
-    </script>
 </body>
 
 </html>

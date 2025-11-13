@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Hiragana Quiz</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="../css/style.css" />
+    <script src="../js/hiraganaQuiz.js" defer></script>
+  </head>
+  <body
+    class="bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 text-slate-100 min-h-screen p-6 flex"
+  >
+    <div class="w-full max-w-4xl mx-auto">
+      <!-- Hiragana Quiz Panel -->
+      <div id="hiraganaQuizPanel" class="panel space-y-6">
+        <!-- Level & Controls -->
+        <div
+          id="levelControls"
+          class="flex flex-wrap items-center gap-3 bg-slate-800/50 p-4 rounded-xl shadow-lg relative z-10"
+        >
+          <label for="hLevel" class="text-sm font-semibold text-slate-100"
+            >Level:</label
+          >
+          <select
+            id="hLevel"
+            class="bg-slate-700 text-slate-100 rounded px-3 py-1 text-sm w-64 focus:ring-2 focus:ring-emerald-400 outline-none"
+          >
+            <option value="a">A row (あ–お)</option>
+            <option value="ka">Ka row (か–こ)</option>
+            <option value="sa">Sa row (さ–そ)</option>
+            <option value="ta">Ta row (た–と)</option>
+            <option value="na">Na row (な–の)</option>
+            <option value="ha">Ha row (は–ほ)</option>
+            <option value="ma">Ma row (ま–も)</option>
+            <option value="ya">Ya row (や–よ)</option>
+            <option value="ra">Ra row (ら–ろ)</option>
+            <option value="wa">Wa row (わ–ん)</option>
+            <option value="a_ko">A–Ko (あ–お + か–こ)</option>
+            <option value="sa_to">Sa–To (さ–そ + た–と)</option>
+            <option value="na_ho">Na–Ho (な–の + は–ほ)</option>
+            <option value="ma_yo">Ma–Yo (ま–も + や–よ)</option>
+            <option value="ra_n">Ra–N (ら–ろ + わ–ん)</option>
+            <option value="youon">Youon (combined sounds)</option>
+            <option value="all">All Hiragana</option>
+          </select>
+
+          <button
+            id="startQuiz"
+            class="px-4 py-1 bg-emerald-500 hover:bg-emerald-600 text-white rounded transition-colors"
+          >
+            Start Quiz
+          </button>
+          <button
+            id="shuffleQuiz"
+            class="px-4 py-1 bg-yellow-500 hover:bg-yellow-600 text-white rounded transition-colors"
+          >
+            Shuffle
+          </button>
+
+          <div class="ml-auto flex items-center gap-6 text-sm text-slate-200">
+            <span
+              >Score:
+              <span id="quizScore" class="font-semibold text-emerald-400"
+                >0</span
+              ></span
+            >
+            <span
+              >Progress:
+              <span id="quizProgress" class="font-semibold text-amber-400"
+                >0 / 0</span
+              ></span
+            >
+          </div>
+        </div>
+
+        <!-- Quiz Card -->
+        <div
+          class="bg-gradient-to-br from-slate-700 to-slate-600 p-6 rounded-3xl text-center shadow-2xl relative z-10"
+        >
+          <div id="quizCard" class="text-8xl font-extrabold mb-6 animate-pulse">
+            あ
+          </div>
+
+          <div
+            id="quizChoices"
+            class="grid grid-cols-2 gap-4 max-w-md mx-auto mb-4"
+          ></div>
+
+          <div
+            id="progressContainer"
+            class="w-full h-3 bg-slate-800 rounded-full overflow-hidden mb-4"
+          >
+            <div
+              id="quizProgressBar"
+              class="h-3 bg-emerald-400 rounded-full w-0 transition-all duration-500"
+            ></div>
+          </div>
+
+          <div id="quizText" class="text-xl text-slate-200 font-medium mb-4">
+            Test your memory
+          </div>
+        </div>
+
+        <!-- Finish Message -->
+        <div
+          id="quizFinishMsg"
+          class="hidden mt-4 p-6 rounded-2xl bg-emerald-500/20 text-center shadow-lg relative z-10"
+        >
+          <h2 class="text-3xl font-bold text-emerald-400 mb-2">
+            🎉 Congratulations! 🎉
+          </h2>
+          <p class="text-xl text-slate-100 mb-4">
+            You’ve completed this level!
+          </p>
+          <p class="text-lg text-amber-200 font-semibold">
+            Your Score: <span id="finalScore">0</span>
+          </p>
+          <div class="mt-4 flex justify-center gap-4">
+            <button
+              id="restartQuiz"
+              class="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 rounded text-white transition"
+            >
+              Restart
+            </button>
+            <button
+              id="chooseLevel"
+              class="px-4 py-2 bg-blue-500 hover:bg-blue-600 rounded text-white transition"
+            >
+              Choose Level
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Level Modal -->
+    <div
+      id="levelModal"
+      class="hidden fixed inset-0 bg-black/50 z-20 flex items-center justify-center"
+    >
+      <div
+        class="bg-slate-800 p-6 rounded-xl shadow-lg relative w-80 text-center"
+      >
+        <h3 class="text-xl font-bold text-emerald-400 mb-2">Select a Level</h3>
+        <p class="text-slate-200 mb-4">
+          Click the dropdown above to choose another level!
+        </p>
+        <button
+          id="closeLevelModal"
+          class="px-4 py-2 bg-blue-500 hover:bg-blue-600 rounded text-white transition"
+        >
+          Got it
+        </button>
+      </div>
+    </div>
+  </body>
+</html>
