@@ -554,6 +554,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const endQuizBtn = document.getElementById("endQuiz");
   const showAllVocabBtn = document.getElementById("showAllVocab");
   const allVocabList = document.getElementById("allVocabList");
+  const vocabImage = document.getElementById("vocabImage");
 
   // --- State ---
   let vocabList = [];
@@ -601,33 +602,7 @@ document.addEventListener("DOMContentLoaded", () => {
       bigHint.textContent = item.rom || "";
     }
 
-    document.getElementById("vocabProgress").textContent = `${
-      currentIndex + 1
-    } / ${vocabList.length}`;
-    cardInner.classList.remove("flipped");
-    cardInner.parentElement.classList.remove("hidden");
-  }
-
-  const vocabImage = document.getElementById("vocabImage"); // get the image element
-
-  function updateCard() {
-    const item = vocabList[currentIndex];
-    if (!item) return;
-
-    if (direction === "jp_en") {
-      bigPrimary.textContent = item.jp;
-      bigSub.textContent = item.rom || "";
-      bigSecondary.textContent = item.en;
-      bigHint.textContent = "";
-    } else {
-      bigPrimary.textContent = item.en;
-      bigSub.textContent = "";
-      bigSecondary.textContent = item.jp;
-      bigHint.textContent = item.rom || "";
-    }
-
-    // --- Add this line ---
-    vocabImage.src = item.img || ""; // set image
+    vocabImage.src = item.img || "";
     vocabImage.alt = item.en || item.jp || "vocab image";
 
     document.getElementById("vocabProgress").textContent = `${
@@ -637,7 +612,6 @@ document.addEventListener("DOMContentLoaded", () => {
     cardInner.parentElement.classList.remove("hidden");
   }
 
-  // --- Enable/Disable Card Buttons ---
   function disableCardButtons() {
     [prevBtn, nextBtn, flipBtn, shuffleBtn].forEach((btn) => {
       btn.disabled = true;
@@ -676,7 +650,6 @@ document.addEventListener("DOMContentLoaded", () => {
   categorySelect.addEventListener("change", () =>
     loadCategory(categorySelect.value)
   );
-
   directionSelect.addEventListener("change", () => {
     direction = directionSelect.value;
     updateCard();
@@ -685,10 +658,21 @@ document.addEventListener("DOMContentLoaded", () => {
   // --- Quiz Mode ---
   startQuizBtn.addEventListener("click", () => {
     quizActive = true;
-    cardInner.parentElement.classList.add("hidden"); // hide flip card
-    allVocabList.classList.add("hidden"); // hide all vocab
+    cardInner.parentElement.classList.add("hidden");
+    allVocabList.classList.add("hidden");
     disableCardButtons();
     vocabQuizPanel.classList.remove("hidden");
+
+    // --- Generate 30 items quiz for selected category ---
+    const baseList = [...CATEGORIES[categorySelect.value]];
+    let repeatedList = [];
+    while (repeatedList.length < 30) {
+      repeatedList = repeatedList.concat(
+        baseList.sort(() => 0.5 - Math.random())
+      );
+    }
+    vocabList = repeatedList.slice(0, 30);
+
     currentIndex = 0;
     quizScore = 0;
     quizProgress = 0;
@@ -702,11 +686,17 @@ document.addEventListener("DOMContentLoaded", () => {
     quizWord.textContent = direction === "jp_en" ? item.jp : item.en;
     quizChoices.innerHTML = "";
 
-    let choices = vocabList.map((v) => (direction === "jp_en" ? v.en : v.jp));
-    choices = choices.sort(() => 0.5 - Math.random()).slice(0, 3);
     const correctAnswer = direction === "jp_en" ? item.en : item.jp;
-    choices.push(correctAnswer);
-    choices.sort(() => 0.5 - Math.random());
+
+    let wrongChoices = vocabList
+      .map((v) => (direction === "jp_en" ? v.en : v.jp))
+      .filter((v) => v !== correctAnswer);
+
+    wrongChoices = wrongChoices.sort(() => 0.5 - Math.random()).slice(0, 3);
+
+    const choices = [...wrongChoices, correctAnswer].sort(
+      () => 0.5 - Math.random()
+    );
 
     choices.forEach((choice) => {
       const btn = document.createElement("button");
