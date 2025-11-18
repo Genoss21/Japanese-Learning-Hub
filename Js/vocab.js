@@ -555,6 +555,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const showAllVocabBtn = document.getElementById("showAllVocab");
   const allVocabList = document.getElementById("allVocabList");
   const vocabImage = document.getElementById("vocabImage");
+  const vocabControls = document.querySelector(".flex.justify-between.mb-4");
 
   // --- State ---
   let vocabList = [];
@@ -564,7 +565,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let quizScore = 0;
   let quizProgress = 0;
 
-  // --- Init ---
+  // --- Init Categories ---
   function initCategories() {
     categorySelect.innerHTML = "";
     Object.keys(CATEGORIES).forEach((cat) => {
@@ -626,27 +627,23 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // --- Flip ---
+  // --- Card Controls ---
   flipBtn.addEventListener("click", () =>
     cardInner.classList.toggle("flipped")
   );
-
   prevBtn.addEventListener("click", () => {
     currentIndex = (currentIndex - 1 + vocabList.length) % vocabList.length;
     updateCard();
   });
-
   nextBtn.addEventListener("click", () => {
     currentIndex = (currentIndex + 1) % vocabList.length;
     updateCard();
   });
-
   shuffleBtn.addEventListener("click", () => {
     vocabList.sort(() => Math.random() - 0.5);
     currentIndex = 0;
     updateCard();
   });
-
   categorySelect.addEventListener("change", () =>
     loadCategory(categorySelect.value)
   );
@@ -663,19 +660,26 @@ document.addEventListener("DOMContentLoaded", () => {
     disableCardButtons();
     vocabQuizPanel.classList.remove("hidden");
 
-    // --- Generate 30 items quiz for selected category ---
+    // Prepare quiz list (up to 30 items)
     const baseList = [...CATEGORIES[categorySelect.value]];
     let repeatedList = [];
-    while (repeatedList.length < 30) {
+    while (repeatedList.length < 30)
       repeatedList = repeatedList.concat(
         baseList.sort(() => 0.5 - Math.random())
       );
-    }
     vocabList = repeatedList.slice(0, 30);
 
     currentIndex = 0;
     quizScore = 0;
     quizProgress = 0;
+
+    // Hide controls
+    if (vocabControls) vocabControls.style.display = "none";
+    if (showAllVocabBtn) {
+      showAllVocabBtn.disabled = true;
+      showAllVocabBtn.classList.add("opacity-50", "cursor-not-allowed");
+    }
+
     renderQuiz();
   });
 
@@ -687,13 +691,10 @@ document.addEventListener("DOMContentLoaded", () => {
     quizChoices.innerHTML = "";
 
     const correctAnswer = direction === "jp_en" ? item.en : item.jp;
-
     let wrongChoices = vocabList
       .map((v) => (direction === "jp_en" ? v.en : v.jp))
       .filter((v) => v !== correctAnswer);
-
     wrongChoices = wrongChoices.sort(() => 0.5 - Math.random()).slice(0, 3);
-
     const choices = [...wrongChoices, correctAnswer].sort(
       () => 0.5 - Math.random()
     );
@@ -703,28 +704,47 @@ document.addEventListener("DOMContentLoaded", () => {
       btn.textContent = choice;
       btn.className =
         "px-3 py-1 bg-slate-600 rounded hover:bg-indigo-600 transition";
-      btn.addEventListener("click", () => checkAnswer(choice, correctAnswer));
+      btn.addEventListener("click", () =>
+        checkAnswer(choice, correctAnswer, btn)
+      );
       quizChoices.appendChild(btn);
     });
 
     quizProgressEl.textContent = `${quizProgress + 1} / ${vocabList.length}`;
   }
 
-  function checkAnswer(selected, correct) {
+  function checkAnswer(selected, correct, btn) {
+    // Highlight correct/incorrect answers
+    Array.from(quizChoices.children).forEach((b) => {
+      if (b.textContent === correct) b.classList.add("bg-green-600");
+      else if (b === btn && selected !== correct) b.classList.add("bg-red-600");
+      b.disabled = true;
+    });
+
     if (selected === correct) quizScore++;
     quizScoreEl.textContent = quizScore;
     quizProgress++;
 
-    if (quizProgress < vocabList.length) {
-      currentIndex++;
-      renderQuiz();
-    } else {
-      alert(`🎉 Quiz finished! Your score: ${quizScore} / ${vocabList.length}`);
-      vocabQuizPanel.classList.add("hidden");
-      cardInner.parentElement.classList.remove("hidden");
-      enableCardButtons();
-      updateCard();
-    }
+    // Move to next after short delay
+    setTimeout(() => {
+      if (quizProgress < vocabList.length) {
+        currentIndex++;
+        renderQuiz();
+      } else {
+        alert(
+          `🎉 Quiz finished! Your score: ${quizScore} / ${vocabList.length}`
+        );
+        vocabQuizPanel.classList.add("hidden");
+        cardInner.parentElement.classList.remove("hidden");
+        enableCardButtons();
+        updateCard();
+        if (vocabControls) vocabControls.style.display = "flex";
+        if (showAllVocabBtn) {
+          showAllVocabBtn.disabled = false;
+          showAllVocabBtn.classList.remove("opacity-50", "cursor-not-allowed");
+        }
+      }
+    }, 800); // short delay to show wrong answer
   }
 
   endQuizBtn.addEventListener("click", () => {
@@ -732,26 +752,28 @@ document.addEventListener("DOMContentLoaded", () => {
     cardInner.parentElement.classList.remove("hidden");
     enableCardButtons();
     updateCard();
+    if (vocabControls) vocabControls.style.display = "flex";
+    if (showAllVocabBtn) {
+      showAllVocabBtn.disabled = false;
+      showAllVocabBtn.classList.remove("opacity-50", "cursor-not-allowed");
+    }
   });
 
   // --- Show All Vocab ---
   showAllVocabBtn.addEventListener("click", () => {
     const isVisible = !allVocabList.classList.contains("hidden");
-
     if (!isVisible) {
       allVocabList.innerHTML = "";
       vocabList.forEach((item) => {
         const div = document.createElement("div");
-        if (direction === "jp_en") {
-          div.textContent = `${item.jp} (${item.rom}) → ${item.en}`;
-        } else {
-          div.textContent = `${item.en} → ${item.jp} (${item.rom})`;
-        }
+        div.textContent =
+          direction === "jp_en"
+            ? `${item.jp} (${item.rom}) → ${item.en}`
+            : `${item.en} → ${item.jp} (${item.rom})`;
         div.className =
           "mb-1 px-2 py-1 rounded hover:bg-slate-600 transition cursor-default";
         allVocabList.appendChild(div);
       });
-
       allVocabList.classList.remove("hidden");
       cardInner.parentElement.classList.add("hidden");
       vocabQuizPanel.classList.add("hidden");
